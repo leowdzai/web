@@ -1,0 +1,7 @@
+*.env
+*.log
+config.php
+uploads/
+downloads/
+.DS_Store
+node_modules/
