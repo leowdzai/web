@@ -1,9 +1,6 @@
+.gitignore
 *.env
 *.log
-config.php
 uploads/
-downloads/
+error.log
 .DS_Store
-node_modules/
-.idea/
-*.swp

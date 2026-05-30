@@ -1,31 +1,26 @@
 <?php
-
-// ====== CẤU HÌNH KẾT NỐI DATABASE ======
-// Sửa thông tin của bạn vào đây
-
+// ====== CẤU HÌNH DATABASE ======
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root');              // Sửa thành tên user cPanel của bạn
-define('DB_PASS', '');                  // Sửa thành password database
-define('DB_NAME', 'marketplace');       // Sửa thành tên database của bạn
+define('DB_USER', 'root');              // Sửa thành user cPanel
+define('DB_PASS', '');                  // Sửa thành password
+define('DB_NAME', 'marketplace');       // Sửa thành tên database
 
 // ====== CẤU HÌNH ỨNG DỤNG ======
-define('APP_URL', 'http://yourdomain.com');  // Sửa thành domain của bạn
-define('APP_NAME', 'Digital Marketplace');
-define('APP_DEBUG', true);
+define('SITE_NAME', 'Digital Marketplace');
+define('SITE_URL', 'http://localhost');
+define('ADMIN_EMAIL', 'admin@marketplace.local');
 
-// ====== CẤU HÌNH VNPAY ======
-define('VNPAY_TMN_CODE', '');
-define('VNPAY_HASH_SECRET', '');
-define('VNPAY_URL', 'https://sandbox.vnpayment.vn/paygate');
+// ====== CẤU HÌNH THANH TOÁN ======
+define('VNPAY_CODE', '');
+define('VNPAY_SECRET', '');
+define('MOMO_CODE', '');
+define('MOMO_KEY', '');
 
-// ====== CẤU HÌNH MOMO ======
-define('MOMO_PARTNER_CODE', '');
-define('MOMO_ACCESS_KEY', '');
-define('MOMO_SECRET_KEY', '');
-define('MOMO_ENDPOINT', 'https://test-payment.momo.vn/v2/gateway/api/create');
+// ====== CẤU HÌNH AFFILIATE ======
+define('COMMISSION_RATE', 10);
+define('MIN_WITHDRAW', 100000);
 
-// ====== AFFILIATE CONFIG ======
-define('AFFILIATE_COMMISSION_RATE', 10); // 10% hoa hồng
-define('MIN_WITHDRAW', 100000);          // 100k VND tối thiểu rút tiền
+define('UPLOAD_DIR', __DIR__ . '/uploads/');
+define('UPLOAD_URL', SITE_URL . '/uploads/');
 
 ?>

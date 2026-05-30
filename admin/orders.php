@@ -1,68 +1,42 @@
 <?php
-session_start();
-require_once '../config.php';
-require_once '../core/Auth.php';
-require_once '../core/Database.php';
+require '../init.php';
+require_admin();
 
-if (!Auth::isAdmin()) {
-    header('Location: login.php');
-    exit;
-}
+$orders = getAll("SELECT o.*, u.email, u.name FROM orders o JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC LIMIT 50");
 
-$db = new Database();
-$orders = $db->query("SELECT o.*, u.email, u.name FROM orders o JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC LIMIT 100")->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Đơn Hàng</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header { margin-bottom: 30px; }
-        .btn { background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
-        .btn:hover { background: #764ba2; }
-        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background: #333; color: white; }
-        .status-paid { background: #d4edda; color: #155724; padding: 5px 10px; border-radius: 4px; }
-        .status-pending { background: #fff3cd; color: #856404; padding: 5px 10px; border-radius: 4px; }
-    </style>
+    <title>Admin - Đơn hàng</title>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📋 Quản Lý Đơn Hàng</h1>
-            <a href="dashboard.php" class="btn">← Quay Lại</a>
-        </div>
-        
-        <table>
+    <div class="container" style="margin-top: 40px;">
+        <h1>📋 Quản lý Đơn hàng</h1>
+
+        <table style="margin-top: 20px;">
             <thead>
                 <tr>
-                    <th>Mã Đơn</th>
+                    <th>Mã đơn</th>
                     <th>Khách</th>
-                    <th>Số Tiền</th>
-                    <th>Thanh Toán</th>
+                    <th>Số tiền</th>
+                    <th>Thanh toán</th>
                     <th>Status</th>
                     <th>Ngày</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($orders as $order): ?>
+                <?php foreach ($orders as $o): ?>
                 <tr>
-                    <td><strong><?= $order['order_number'] ?></strong></td>
-                    <td><?= htmlspecialchars($order['email']) ?></td>
-                    <td>₫<?= number_format($order['final_amount'], 0, ',', '.') ?></td>
-                    <td><?= ucfirst($order['payment_method'] ?? 'N/A') ?></td>
-                    <td>
-                        <span class="status-<?= $order['payment_status'] === 'paid' ? 'paid' : 'pending' ?>">
-                            <?= $order['payment_status'] === 'paid' ? '✅ Đã Thanh Toán' : '⏳ Chưa Thanh Toán' ?>
-                        </span>
-                    </td>
-                    <td><?= date('d/m/Y H:i', strtotime($order['created_at'])) ?></td>
+                    <td><?php echo $o['order_number']; ?></td>
+                    <td><?php echo sanitize($o['email']); ?></td>
+                    <td>₫<?php echo format_price($o['total_amount']); ?></td>
+                    <td><?php echo ucfirst($o['payment_method'] ?? 'N/A'); ?></td>
+                    <td><?php echo ucfirst($o['payment_status']); ?></td>
+                    <td><?php echo format_date($o['created_at']); ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
