@@ -2,111 +2,131 @@
 
 Nền tảng bán sản phẩm số (phần mềm, hosting, digital products) đơn giản cho cPanel.
 
-## ✨ Tính năng
+## 💡 Cách Dùng
 
-✅ Admin Dashboard (HTML đơn giản)  
-✅ Quản lý Sản phẩm & Danh mục  
-✅ Quản lý Đơn hàng  
-✅ Thanh toán: VNPay + Momo  
-✅ Hệ thống Affiliate (Referral & Commission)  
-✅ Rút tiền cho Affiliate  
-✅ Chỉ ~20 file, dễ deploy trên cPanel  
-
-## 📦 Cài đặt
-
-### 1. Upload lên cPanel
+### 1️⃣ **Tải Code Về**
 ```bash
-# Kéo thả tất cả files lên thư mục public_html của cPanel
+git clone https://github.com/leowdzai/web.git
+cd web
 ```
 
-### 2. Truy cập Installation
-```
-http://yourdomain.com/install.php
-```
+### 2️⃣ **Sửa File config.php**
 
-### 3. Điền thông tin Database
-- Database Host: localhost
-- Database User: cpanel_username
-- Database Name: cpanel_username_marketplace
+Mở `config.php` và sửa thông tin:
 
-### 4. Tạo Admin Account
-- Email: admin@yourdomain.com
-- Password: strong_password
-
-### 5. Truy cập Admin Panel
-```
-http://yourdomain.com/admin/dashboard.php
+```php
+define('DB_HOST', 'localhost');           // Sửa host
+define('DB_USER', 'cpanel_username');     // Sửa user
+define('DB_PASS', 'password');            // Sửa password
+define('DB_NAME', 'database_name');       // Sửa tên database
+define('APP_URL', 'https://yourdomain.com');  // Sửa domain
 ```
 
-## 🔑 Cấu hình Payment Gateway
+### 3️⃣ **Tạo Database**
+
+- Vào cPanel → MySQL → Tạo database mới
+- Import file `sql/schema.sql` vào database đó
+- Hoặc dùng phpMyAdmin để import
+
+### 4️⃣ **Upload Lên cPanel**
+
+- Upload toàn bộ folder lên `public_html`
+- Hoặc dùng Git pull trên cPanel
+
+### 5️⃣ **Tạo Admin Account**
+
+Chạy lệnh SQL trong phpMyAdmin:
+
+```sql
+INSERT INTO users (email, password, name, role) 
+VALUES ('admin@yourdomain.com', '$2y$10$[bcrypt_hash]', 'Admin', 'admin');
+```
+
+Hoặc dùng PHP:
+```php
+<?php
+require 'core/Database.php';
+$db = new Database();
+$hash = password_hash('password123', PASSWORD_BCRYPT);
+$db->query("INSERT INTO users (email, password, name, role) VALUES ('admin@yourdomain.com', '$hash', 'Admin', 'admin')");
+?>
+```
+
+### 6️⃣ **Đăng Nhập Admin**
+
+```
+http://yourdomain.com/admin/login.php
+```
+
+## ⚙️ Cấu Hình Payment
 
 ### VNPay
 1. Đăng ký: https://sandbox.vnpayment.vn
-2. Copy `TMN Code` và `Hash Secret`
-3. Dán vào file `.env`:
-```
-VNPAY_TMN_CODE=1234567890
-VNPAY_HASH_SECRET=abcdefghijk...
+2. Sửa `config.php`:
+```php
+define('VNPAY_TMN_CODE', 'your_code');
+define('VNPAY_HASH_SECRET', 'your_secret');
 ```
 
 ### Momo
 1. Đăng ký: https://test-payment.momo.vn
-2. Copy credentials
-3. Dán vào file `.env`:
-```
-MOMO_PARTNER_CODE=your_code
-MOMO_ACCESS_KEY=your_key
-MOMO_SECRET_KEY=your_secret
+2. Sửa `config.php`:
+```php
+define('MOMO_PARTNER_CODE', 'your_code');
+define('MOMO_ACCESS_KEY', 'your_key');
+define('MOMO_SECRET_KEY', 'your_secret');
 ```
 
-## 📁 Cấu trúc Project
+## 📁 Cấu Trúc Project
 
 ```
 web/
-├── admin/                 # Admin Panel
-├── core/                  # Lõi ứng dụng (Auth, DB, Models)
-├── config/                # Cấu hình
-├── sql/                   # Database schema
-├── payment/               # Xử lý thanh toán
-├── install.php            # Setup wizard
-├── .env                   # Environment config
-└── README.md
+├── config.php              # ⚙️ CẤU HÌNH (sửa ở đây)
+├── core/                   # Lõi ứng dụng
+│   ├── Database.php       # Kết nối DB
+│   ├── Auth.php           # Đăng nhập/đăng ký
+│   ├── Product.php        # Sản phẩm
+│   ├── Order.php          # Đơn hàng
+│   ├── Affiliate.php      # Hệ thống affiliate
+│   └── Payment.php        # Thanh toán
+├── admin/                  # Admin Panel
+│   ├── login.php          # Đăng nhập
+│   ├── dashboard.php      # Dashboard
+│   ├── products.php       # Quản lý sản phẩm
+│   ├── orders.php         # Quản lý đơn hàng
+│   ├── users.php          # Quản lý users
+│   ├── affiliates.php     # Quản lý affiliate
+│   ├── withdrawals.php    # Duyệt rút tiền
+│   └── logout.php         # Đăng xuất
+├── sql/                    # Database
+│   └── schema.sql         # SQL schema
+└── README.md              # Tài liệu
 ```
 
-## 🎯 Các tính năng chính
+## ✨ Tính Năng
 
-### Admin Panel
-- 📊 Dashboard (Users, Products, Orders, Revenue)
-- 📦 Quản lý sản phẩm
-- 📋 Quản lý đơn hàng
-- 👥 Quản lý users
-- 🤝 Quản lý affiliate
-- 💳 Duyệt yêu cầu rút tiền
+✅ Admin Dashboard (Users, Products, Orders, Revenue)  
+✅ Quản lý sản phẩm & danh mục  
+✅ Quản lý đơn hàng  
+✅ Thanh toán VNPay & Momo  
+✅ Hệ thống Affiliate (Referral & Commission)  
+✅ Duyệt rút tiền  
+✅ Session management  
+✅ Security (bcrypt password, SQL escape)  
 
-### Affiliate System
-- Mỗi user có 1 referral code riêng
-- Kiếm 10% hoa hồng từ mỗi đơn hàng của người được referral
-- Dashboard tracking chi tiết
-- Yêu cầu rút tiền vào ngân hàng
+## 🔐 Bảo Mật
 
-## 🔐 Bảo mật
+- Password: bcrypt hashing
+- SQL: prepared statements & escape
+- Session: secure tokens
+- HTTPS: recommended
 
-- Password hashing: bcrypt
-- SQL Injection protection: escape queries
-- HTTPS recommended
-- Payment signature verification
+## 📞 Thắc Mắc?
 
-## 📞 Support
-
-Nếu gặp vấn đề:
-1. Kiểm tra `.env` config
-2. Xem file logs (nếu có)
-3. Kiểm tra cấp quyền thư mục: 755
+1. Kiểm tra `config.php` - thông tin kết nối database
+2. Kiểm tra file `sql/schema.sql` - import vào database
+3. Kiểm tra quyền folder (755 cho folder, 644 cho file)
 4. Kiểm tra PHP version >= 7.4
-
-## 📄 License
-
-MIT License
 
 ---
 

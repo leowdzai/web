@@ -10,14 +10,14 @@ if (!Auth::isAdmin()) {
 }
 
 $db = new Database();
-$orders = $db->query("SELECT o.*, u.email, u.name FROM orders o JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC LIMIT 100")->fetch_all(MYSQLI_ASSOC);
+$users = $db->query("SELECT * FROM users ORDER BY created_at DESC LIMIT 100")->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Đơn Hàng</title>
+    <title>Quản Lý Users</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
@@ -28,41 +28,39 @@ $orders = $db->query("SELECT o.*, u.email, u.name FROM orders o JOIN users u ON 
         table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #333; color: white; }
-        .status-paid { background: #d4edda; color: #155724; padding: 5px 10px; border-radius: 4px; }
-        .status-pending { background: #fff3cd; color: #856404; padding: 5px 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📋 Quản Lý Đơn Hàng</h1>
+            <h1>👥 Quản Lý Users</h1>
             <a href="dashboard.php" class="btn">← Quay Lại</a>
         </div>
         
         <table>
             <thead>
                 <tr>
-                    <th>Mã Đơn</th>
-                    <th>Khách</th>
-                    <th>Số Tiền</th>
-                    <th>Thanh Toán</th>
-                    <th>Status</th>
-                    <th>Ngày</th>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Tên</th>
+                    <th>Role</th>
+                    <th>Ngày Tạo</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($orders as $order): ?>
+                <?php foreach ($users as $user): ?>
                 <tr>
-                    <td><strong><?= $order['order_number'] ?></strong></td>
-                    <td><?= htmlspecialchars($order['email']) ?></td>
-                    <td>₫<?= number_format($order['final_amount'], 0, ',', '.') ?></td>
-                    <td><?= ucfirst($order['payment_method'] ?? 'N/A') ?></td>
+                    <td><?= $user['id'] ?></td>
+                    <td><?= htmlspecialchars($user['email']) ?></td>
+                    <td><?= htmlspecialchars($user['name'] ?? 'N/A') ?></td>
                     <td>
-                        <span class="status-<?= $order['payment_status'] === 'paid' ? 'paid' : 'pending' ?>">
-                            <?= $order['payment_status'] === 'paid' ? '✅ Đã Thanh Toán' : '⏳ Chưa Thanh Toán' ?>
-                        </span>
+                        <?php if ($user['role'] === 'admin'): ?>
+                            <strong style="color: #dc3545;">🔴 Admin</strong>
+                        <?php else: ?>
+                            <span style="color: #28a745;">🟢 User</span>
+                        <?php endif; ?>
                     </td>
-                    <td><?= date('d/m/Y H:i', strtotime($order['created_at'])) ?></td>
+                    <td><?= date('d/m/Y', strtotime($user['created_at'])) ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

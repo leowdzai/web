@@ -5,3 +5,5 @@ uploads/
 downloads/
 .DS_Store
 node_modules/
+.idea/
+*.swp

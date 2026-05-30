@@ -10,14 +10,14 @@ if (!Auth::isAdmin()) {
 }
 
 $db = new Database();
-$orders = $db->query("SELECT o.*, u.email, u.name FROM orders o JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC LIMIT 100")->fetch_all(MYSQLI_ASSOC);
+$affiliates = $db->query("SELECT a.*, u.email, u.name, COUNT(ar.id) as referral_count FROM affiliates a JOIN users u ON a.user_id = u.id LEFT JOIN affiliate_referrals ar ON a.id = ar.affiliate_id GROUP BY a.id ORDER BY a.total_commission DESC LIMIT 100")->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Đơn Hàng</title>
+    <title>Quản Lý Affiliate</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
@@ -28,41 +28,35 @@ $orders = $db->query("SELECT o.*, u.email, u.name FROM orders o JOIN users u ON 
         table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #333; color: white; }
-        .status-paid { background: #d4edda; color: #155724; padding: 5px 10px; border-radius: 4px; }
-        .status-pending { background: #fff3cd; color: #856404; padding: 5px 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📋 Quản Lý Đơn Hàng</h1>
+            <h1>🤝 Quản Lý Affiliate</h1>
             <a href="dashboard.php" class="btn">← Quay Lại</a>
         </div>
         
         <table>
             <thead>
                 <tr>
-                    <th>Mã Đơn</th>
-                    <th>Khách</th>
-                    <th>Số Tiền</th>
-                    <th>Thanh Toán</th>
+                    <th>Email</th>
+                    <th>Referral Code</th>
+                    <th>Referrals</th>
+                    <th>Tổng Hoa Hồng</th>
+                    <th>Số Dư</th>
                     <th>Status</th>
-                    <th>Ngày</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($orders as $order): ?>
+                <?php foreach ($affiliates as $aff): ?>
                 <tr>
-                    <td><strong><?= $order['order_number'] ?></strong></td>
-                    <td><?= htmlspecialchars($order['email']) ?></td>
-                    <td>₫<?= number_format($order['final_amount'], 0, ',', '.') ?></td>
-                    <td><?= ucfirst($order['payment_method'] ?? 'N/A') ?></td>
-                    <td>
-                        <span class="status-<?= $order['payment_status'] === 'paid' ? 'paid' : 'pending' ?>">
-                            <?= $order['payment_status'] === 'paid' ? '✅ Đã Thanh Toán' : '⏳ Chưa Thanh Toán' ?>
-                        </span>
-                    </td>
-                    <td><?= date('d/m/Y H:i', strtotime($order['created_at'])) ?></td>
+                    <td><?= htmlspecialchars($aff['email']) ?></td>
+                    <td><code><?= $aff['referral_code'] ?></code></td>
+                    <td><?= $aff['referral_count'] ?></td>
+                    <td>₫<?= number_format($aff['total_commission'] ?? 0, 0, ',', '.') ?></td>
+                    <td>₫<?= number_format($aff['available_balance'], 0, ',', '.') ?></td>
+                    <td><?= $aff['is_active'] ? '✅ Active' : '❌ Inactive' ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

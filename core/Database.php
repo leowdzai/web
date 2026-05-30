@@ -1,26 +1,26 @@
 <?php
 
+require_once 'config.php';
+
 class Database {
     private $conn;
     
     public function __construct() {
-        $config = require __DIR__ . '/../config/database.php';
-        
         try {
             $this->conn = new mysqli(
-                $config['host'],
-                $config['username'],
-                $config['password'],
-                $config['database']
+                DB_HOST,
+                DB_USER,
+                DB_PASS,
+                DB_NAME
             );
             
             if ($this->conn->connect_error) {
                 throw new Exception('Connection Error: ' . $this->conn->connect_error);
             }
             
-            $this->conn->set_charset($config['charset']);
+            $this->conn->set_charset('utf8mb4');
         } catch (Exception $e) {
-            die('Database Error: ' . $e->getMessage());
+            die('❌ Database Error: ' . $e->getMessage());
         }
     }
     
@@ -39,4 +39,10 @@ class Database {
     public function escape($string) {
         return $this->conn->real_escape_string($string);
     }
+    
+    public function lastInsertId() {
+        return $this->conn->insert_id;
+    }
 }
+
+?>

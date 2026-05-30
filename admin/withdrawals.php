@@ -10,14 +10,14 @@ if (!Auth::isAdmin()) {
 }
 
 $db = new Database();
-$orders = $db->query("SELECT o.*, u.email, u.name FROM orders o JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC LIMIT 100")->fetch_all(MYSQLI_ASSOC);
+$withdrawals = $db->query("SELECT w.*, u.email FROM affiliate_withdrawals w JOIN affiliates a ON w.affiliate_id = a.id JOIN users u ON a.user_id = u.id ORDER BY w.created_at DESC LIMIT 100")->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Đơn Hàng</title>
+    <title>Duyệt Rút Tiền</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
@@ -25,44 +25,44 @@ $orders = $db->query("SELECT o.*, u.email, u.name FROM orders o JOIN users u ON 
         .header { margin-bottom: 30px; }
         .btn { background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
         .btn:hover { background: #764ba2; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
         table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #333; color: white; }
-        .status-paid { background: #d4edda; color: #155724; padding: 5px 10px; border-radius: 4px; }
-        .status-pending { background: #fff3cd; color: #856404; padding: 5px 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📋 Quản Lý Đơn Hàng</h1>
+            <h1>💳 Duyệt Rút Tiền</h1>
             <a href="dashboard.php" class="btn">← Quay Lại</a>
         </div>
         
         <table>
             <thead>
                 <tr>
-                    <th>Mã Đơn</th>
-                    <th>Khách</th>
+                    <th>Email</th>
                     <th>Số Tiền</th>
-                    <th>Thanh Toán</th>
+                    <th>Số TK</th>
                     <th>Status</th>
                     <th>Ngày</th>
+                    <th>Hành Động</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($orders as $order): ?>
+                <?php foreach ($withdrawals as $w): ?>
                 <tr>
-                    <td><strong><?= $order['order_number'] ?></strong></td>
-                    <td><?= htmlspecialchars($order['email']) ?></td>
-                    <td>₫<?= number_format($order['final_amount'], 0, ',', '.') ?></td>
-                    <td><?= ucfirst($order['payment_method'] ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($w['email']) ?></td>
+                    <td><strong>₫<?= number_format($w['amount'], 0, ',', '.') ?></strong></td>
+                    <td><?= htmlspecialchars($w['bank_account']) ?></td>
+                    <td><?= ucfirst($w['status']) ?></td>
+                    <td><?= date('d/m/Y H:i', strtotime($w['created_at'])) ?></td>
                     <td>
-                        <span class="status-<?= $order['payment_status'] === 'paid' ? 'paid' : 'pending' ?>">
-                            <?= $order['payment_status'] === 'paid' ? '✅ Đã Thanh Toán' : '⏳ Chưa Thanh Toán' ?>
-                        </span>
+                        <?php if ($w['status'] === 'pending'): ?>
+                            <button class="btn btn-success" onclick="alert('Approved: ' + <?= $w['id'] ?>)">Duyệt</button>
+                        <?php endif; ?>
                     </td>
-                    <td><?= date('d/m/Y H:i', strtotime($order['created_at'])) ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
